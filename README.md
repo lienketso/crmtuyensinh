@@ -136,6 +136,7 @@ docker compose exec app php artisan migrate --seed
 
 - Ứng dụng: `http://localhost:8080`
 - API base: `http://localhost:8080/api`
+- phpMyAdmin: `http://localhost:8081` (có thể đổi bằng biến `PHPMYADMIN_PORT`)
 
 ### Gợi ý cho VPS (đặt project ở `/docker/crmtuyensinh`)
 
