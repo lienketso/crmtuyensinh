@@ -149,6 +149,11 @@ docker compose exec app composer install
 docker compose exec app php artisan migrate --seed
 ```
 
+Truy cập trên VPS (IP `192.168.1.20`):
+
+- Ứng dụng: `http://192.168.1.20:8080`
+- phpMyAdmin: `http://192.168.1.20:8081`
+
 ## API Endpoints
 
 ### Public Endpoints
