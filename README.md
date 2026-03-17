@@ -100,6 +100,7 @@ php artisan key:generate
 ```
 
 Bạn có thể chỉnh lại DB, mail, API key… trong `.env` nếu cần.
+Lưu ý: **không cấu hình `DB_USERNAME=root`** khi dùng MySQL container (sẽ crash-loop). Hãy dùng user thường (ví dụ `tuyensinh`).
 
 ### Bước 2: Khởi động containers
 

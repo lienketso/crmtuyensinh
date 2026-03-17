@@ -31,8 +31,9 @@ services:
     restart: unless-stopped
     environment:
       MYSQL_DATABASE: ${DB_DATABASE:-tuyensinh}
-      MYSQL_USER: ${DB_USERNAME:-tuyensinh}
-      MYSQL_PASSWORD: ${DB_PASSWORD:-tuyensinh}
+      # Không dùng root cho MYSQL_USER (MySQL image sẽ crash-loop nếu MYSQL_USER=root)
+      MYSQL_USER: ${DB_APP_USERNAME:-tuyensinh}
+      MYSQL_PASSWORD: ${DB_APP_PASSWORD:-tuyensinh}
       MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root}
     ports:
       - "${DB_PORT_EXPOSE:-3307}:3306"
