@@ -33,6 +33,8 @@ RUN groupadd -g ${GROUP_ID} www || true \
     && useradd -u ${USER_ID} -ms /bin/bash -g www www || true \
     && chown -R www:www /var/www
 
+COPY docker/php-fpm/zz-log.conf /usr/local/etc/php-fpm.d/zz-log.conf
+
 COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
