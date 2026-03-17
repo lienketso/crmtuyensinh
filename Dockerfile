@@ -33,7 +33,8 @@ RUN groupadd -g ${GROUP_ID} www || true \
     && useradd -u ${USER_ID} -ms /bin/bash -g www www || true \
     && chown -R www:www /var/www
 
-USER www
+COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
 
-CMD ["php-fpm"]
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 

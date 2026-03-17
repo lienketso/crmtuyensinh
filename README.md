@@ -122,6 +122,7 @@ docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d --build
 ### Bước 3: Migrate & seed trong container
 
 ```bash
+docker compose exec app composer install
 docker compose exec app php artisan migrate --seed
 ```
 
