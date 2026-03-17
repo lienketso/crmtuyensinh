@@ -112,7 +112,12 @@ Các service:
 - **app**: PHP-FPM (Laravel, chạy trong `/var/www`)
 - **web**: Nginx, expose `http://localhost:8080`
 - **db**: MySQL 8, port host `3307`
-- **node**: Vite dev server, port `5173`
+
+Nếu bạn cần chạy Vite dev server (local/dev):
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d --build
+```
 
 ### Bước 3: Migrate & seed trong container
 
@@ -124,6 +129,17 @@ docker compose exec app php artisan migrate --seed
 
 - Ứng dụng: `http://localhost:8080`
 - API base: `http://localhost:8080/api`
+
+### Gợi ý cho VPS (đặt project ở `/docker/crmtuyensinh`)
+
+Chỉ cần `cd` vào đúng thư mục rồi chạy như trên, vì compose dùng đường dẫn tương đối:
+
+```bash
+cd /docker/crmtuyensinh
+docker compose up -d --build
+docker compose exec app composer install
+docker compose exec app php artisan migrate --seed
+```
 
 ## API Endpoints
 
