@@ -119,6 +119,12 @@ Nếu bạn cần chạy Vite dev server (local/dev):
 docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d --build
 ```
 
+Nếu bạn chỉ cần build assets (phù hợp VPS/prod, không cần Vite dev):
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.build.yml run --rm node
+```
+
 ### Bước 3: Migrate & seed trong container
 
 ```bash
