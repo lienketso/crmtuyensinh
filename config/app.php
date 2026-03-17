@@ -105,6 +105,7 @@ return [
         ),
     ],
 
+    'ai_agent_key' => env('AI_AGENT_API_KEY','huph_ai_secret_key_2026_secure'),
     /*
     |--------------------------------------------------------------------------
     | Maintenance Mode Driver

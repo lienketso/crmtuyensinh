@@ -13,11 +13,14 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
+        // Tạo tài khoản super admin mặc định
+        User::updateOrCreate(
+            ['email' => 'thanhan1507@gmail.com'],
+            [
+                'name' => 'Super Admin',
+                'password' => '@Lks2026@',
+                'role' => 'super_admin',
+            ]
+        );
     }
 }
