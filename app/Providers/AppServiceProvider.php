@@ -5,7 +5,7 @@ namespace App\Providers;
 use App\Models\Setting;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
-
+use Illuminate\Support\Facades\URL;
 class AppServiceProvider extends ServiceProvider
 {
     /**
@@ -21,6 +21,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        URL::forceScheme('https');
         // Nạp một số cấu hình động từ bảng settings (nếu đã migrate)
         if (! app()->runningInConsole() || app()->runningUnitTests()) {
             if (Schema::hasTable('settings')) {
