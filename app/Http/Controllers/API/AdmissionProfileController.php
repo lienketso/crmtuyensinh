@@ -95,6 +95,25 @@ class AdmissionProfileController extends Controller
         ], 201);
     }
 
+    /**
+     * Tạo hồ sơ xét tuyển từ lead nhưng truyền lead_id trong body (CRM - user đăng nhập).
+     * Endpoint phục vụ tích hợp khi không muốn để leadId trên URL.
+     */
+    public function createFromLeadBody(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'lead_id' => 'required|integer|min:1',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        $leadId = (int) $validator->validated()['lead_id'];
+
+        return $this->createFromLead($request, $leadId);
+    }
+
     // Cập nhật điểm số (Có thể gọi từ kết quả OCR của AI)
     public function updateAcademicRecords(Request $request, $id)
     {

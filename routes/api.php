@@ -45,12 +45,13 @@ Route::middleware('auth:sanctum')->group(function () {
 
     //lead
     Route::get('/leads-list',[LeadController::class,'getLead']);
-    Route::post('/lead-create',[LeadController::class,'store']);
+    // lead-create dùng group tích hợp riêng (sanctum OR integration token)
     Route::post('/leads/{id}/status',[LeadController::class,'updateStatus']);
     Route::post('/leads/{id}/assign',[LeadController::class,'assign']);
     Route::get('/leads/{id}/show',[LeadController::class,'show']);
     Route::post('/leads-import',[LeadController::class,'import']);
     Route::post('/leads/{leadId}/admission-profile',[AdmissionProfileController::class,'createFromLead']);
+    // admission-profiles/from-lead dùng group tích hợp riêng (sanctum OR integration token)
     Route::get('/admission-profiles', [AdmissionProfileController::class, 'index']);
     Route::get('/admission-profiles/{id}', [AdmissionProfileController::class, 'show']);
     Route::match(['put', 'post'], '/admission-profiles/{id}', [AdmissionProfileController::class, 'update']);
@@ -80,6 +81,17 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('schools/{id}', [SchoolController::class, 'destroy']);
         Route::post('schools/{schoolId}/admins', [SchoolController::class, 'createAdminForSchool']);
     });
+
+    // List schools (Bearer token) - phục vụ tích hợp
+    // /schools dùng group tích hợp riêng (sanctum OR integration token)
+});
+
+// Integration endpoints: cho phép dùng Sanctum token hoặc integration bearer token (không cần login)
+Route::middleware('sanctum.or.integration')->group(function () {
+    Route::post('/lead-create', [LeadController::class, 'store']);
+    Route::post('/admission-profiles/from-lead', [AdmissionProfileController::class, 'createFromLeadBody']);
+    // Danh sách trường phục vụ tích hợp (không bắt buộc super_admin)
+    Route::get('/schools', [SchoolController::class, 'listForIntegration']);
 });
 
 // External API (X-API-KEY) - path khác để tránh trùng với CRM (auth), tránh 401 khi user đã login

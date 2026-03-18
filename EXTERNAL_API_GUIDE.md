@@ -19,6 +19,14 @@ Có hai cơ chế:
 - **2) Static API Key** – dùng cho endpoint external tạo hồ sơ:
   - Gửi header: `X-API-KEY: {YOUR_STATIC_API_KEY}`
 
+Ngoài ra hệ thống có hỗ trợ **Bearer token mặc định cho tích hợp** (không cần login) nếu được cấu hình ở server:
+
+- Header: `Authorization: Bearer {INTEGRATION_BEARER_TOKEN}`
+- Token này dùng được cho một số endpoint tích hợp như:
+  - `POST {BASE_URL}/lead-create`
+  - `POST {BASE_URL}/admission-profiles/from-lead`
+  - `GET {BASE_URL}/schools` *(không yêu cầu super admin)*
+
 ### 1.1. Đăng nhập lấy Bearer token
 
 **Endpoint**
@@ -59,6 +67,12 @@ Có hai cơ chế:
 ```http
 Authorization: Bearer {access_token}
 ```
+
+---
+
+## 1.2. Xác thực Bearer token (khuyến nghị)
+
+Đối với các endpoint tích hợp cần quyền truy cập dữ liệu (ví dụ: danh sách trường), nên dùng **Bearer token** lấy từ `POST {BASE_URL}/login`.
 
 ---
 
@@ -151,6 +165,10 @@ Có **2 cách** tuỳ vào mức độ tin cậy của hệ thống bên ngoài:
 - `POST {BASE_URL}/leads/{leadId}/admission-profile`
 - Yêu cầu header **Bearer token**.
 
+Ngoài ra, nếu bạn muốn truyền `lead_id` trong body (không đặt trên URL), có thể dùng:
+
+- `POST {BASE_URL}/admission-profiles/from-lead`
+
 **Headers**
 
 - `Authorization: Bearer {access_token}`
@@ -161,13 +179,23 @@ Có **2 cách** tuỳ vào mức độ tin cậy của hệ thống bên ngoài:
 
 - `leadId` – ID lead đã tồn tại trong CRM.
 
-**Body (JSON)**
+**Body (JSON) – đầy đủ các trường trong DB**
 
-Các trường tùy chọn, tuỳ thuộc bạn muốn đẩy gì vào hồ sơ:
+Tất cả các trường dưới đây đều là **optional** (trừ `lead_id` nếu bạn dùng endpoint `/admission-profiles/from-lead`), hệ thống sẽ lưu những gì bạn gửi:
 
-- `identification_number` *(string, nullable)* – Số CMND/CCCD (có thể null, DB đã cho phép nullable)
-- `academic_records` *(array hoặc JSON-encoded string)* – Dữ liệu học tập, ví dụ danh sách năm / điểm
-  - Nếu gửi JSON text sẽ được decode trong backend.
+- `lead_id` *(int)* – **bắt buộc** khi gọi `POST {BASE_URL}/admission-profiles/from-lead`
+- `identification_number` *(string, nullable)* – Số CMND/CCCD (DB cho phép `null`, unique)
+- `province` *(string, nullable)* – Tỉnh/Thành phố
+- `graduation_year` *(int|year, nullable)* – Năm tốt nghiệp (ví dụ `2024`)
+- `academic_level` *(string, nullable)* – Học lực (ví dụ: `Giỏi`, `Khá`, `Trung bình`)
+- `gpa` *(number, nullable)* – Điểm trung bình (0–10, lưu dạng decimal)
+- `admission_method` *(string, nullable)* – Hình thức xét tuyển (ví dụ: `xet-hoc-ba`, `diem-thi`, `lien-thong`)
+- `academic_records` *(array hoặc JSON-encoded string, nullable)* – Dữ liệu điểm các môn (mảng `{subject, score}`)
+- `document_status` *(string, nullable)* – Trạng thái hồ sơ. Nếu không gửi, hệ thống mặc định `registered` khi tạo từ CRM.
+  - Giá trị hỗ trợ : `not_registered`, `registered`, `submitted`, `need_more_docs`, `valid`, `in_review`, `admitted`, `confirmed`, `enrolled`
+  - Hỗ trợ trạng thái: `pending`, `verified`, `rejected`
+- `admin_note` *(string, nullable)* – Ghi chú cán bộ (nếu phía tích hợp muốn đẩy ghi chú)
+- `admission_file` *(string, nullable)* – Đường dẫn file hồ sơ (field này thường do CRM upload và tự lưu, tích hợp ngoài thường không cần gửi)
 
 Ví dụ đơn giản:
 
@@ -178,6 +206,28 @@ curl -X POST "{BASE_URL}/leads/123/admission-profile" \
   -H "Accept: application/json" \
   -d '{
     "identification_number": "012345678901",
+    "academic_records": [
+      { "year": 2023, "gpa": 8.2 },
+      { "year": 2024, "gpa": 8.5 }
+    ]
+  }'
+```
+
+Ví dụ (truyền `lead_id` trong body):
+
+```bash
+curl -X POST "{BASE_URL}/admission-profiles/from-lead" \
+  -H "Authorization: Bearer {access_token}" \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/json" \
+  -d '{
+    "lead_id": 123,
+    "identification_number": "012345678901",
+    "province": "Hà Nội",
+    "graduation_year": 2024,
+    "academic_level": "Giỏi",
+    "gpa": 8.30,
+    "admission_method": "xet-hoc-ba",
     "academic_records": [
       { "year": 2023, "gpa": 8.2 },
       { "year": 2024, "gpa": 8.5 }
@@ -233,6 +283,44 @@ curl -X POST "{BASE_URL}/external/admission-profiles/123" \
 ```
 
 ---
+
+## 4. API lấy danh sách Trường (Schools) – Bearer token
+
+### 4.1. Endpoint
+
+- `GET {BASE_URL}/schools`
+
+### 4.2. Headers
+
+- `Authorization: Bearer {access_token}`
+- `Accept: application/json`
+
+### 4.3. Query params (tùy chọn)
+
+- `search` *(string)* – tìm theo `name` hoặc `domain`
+
+### 4.4. Ví dụ request (cURL)
+
+```bash
+curl -X GET "{BASE_URL}/schools?search=aratech" \
+  -H "Authorization: Bearer {access_token}" \
+  -H "Accept: application/json"
+```
+
+### 4.5. Response mẫu
+
+```json
+{
+  "data": [
+    {
+      "id": 1,
+      "name": "Trường A",
+      "domain": "truonga.edu.vn",
+      "contact_email": "contact@truonga.edu.vn"
+    }
+  ]
+}
+```
 
 ## 4. Gợi ý flow tích hợp điển hình
 

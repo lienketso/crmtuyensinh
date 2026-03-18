@@ -106,6 +106,11 @@ return [
     ],
 
     'ai_agent_key' => env('AI_AGENT_API_KEY','huph_ai_secret_key_2026_secure'),
+
+    // Bearer token mặc định cho tích hợp (không cần login)
+    'integration_bearer_token' => env('INTEGRATION_BEARER_TOKEN'),
+    // User sẽ được "mạo danh" khi dùng integration token (thường là superadmin@example.com)
+    'integration_user_email' => env('INTEGRATION_USER_EMAIL', 'thanhan1507@gmail.com'),
     /*
     |--------------------------------------------------------------------------
     | Maintenance Mode Driver

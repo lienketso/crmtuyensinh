@@ -20,6 +20,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'static.api.key' => \App\Http\Middleware\CheckStaticApiKey::class,
             'admin' => \App\Http\Middleware\EnsureUserIsAdmin::class,
             'super_admin' => \App\Http\Middleware\EnsureUserIsSuperAdmin::class,
+            'sanctum.or.integration' => \App\Http\Middleware\EnsureSanctumOrIntegrationToken::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

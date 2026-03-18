@@ -86,6 +86,54 @@ class SchoolController extends Controller
     }
 
     /**
+     * Danh sách trường (Bearer token).
+     * Trả về dạng list đơn giản, không paginate để dễ tích hợp.
+     */
+    public function list(Request $request)
+    {
+        $query = School::query()->orderBy('name');
+
+        if ($search = $request->get('search')) {
+            $query->where('name', 'like', "%{$search}%")
+                ->orWhere('domain', 'like', "%{$search}%");
+        }
+
+        return response()->json([
+            'data' => $query->get(['id', 'name', 'domain', 'contact_email']),
+        ]);
+    }
+
+    /**
+     * Danh sách trường phục vụ tích hợp:
+     * - Nếu dùng integration token: trả về tất cả trường.
+     * - Nếu user login thường: chỉ trả về trường của user (nếu có school_id).
+     */
+    public function listForIntegration(Request $request)
+    {
+        $isIntegration = (bool) $request->attributes->get('is_integration_token', false);
+        $user = $request->user();
+
+        $query = School::query()->orderBy('name');
+
+        if (! $isIntegration) {
+            // Với user thường, chỉ trả về trường của chính user (nếu có)
+            if (! $user || ! $user->school_id) {
+                return response()->json(['data' => []]);
+            }
+            $query->where('id', $user->school_id);
+        }
+
+        if ($search = $request->get('search')) {
+            $query->where('name', 'like', "%{$search}%")
+                ->orWhere('domain', 'like', "%{$search}%");
+        }
+
+        return response()->json([
+            'data' => $query->get(['id', 'name', 'domain', 'contact_email']),
+        ]);
+    }
+
+    /**
      * Tạo user admin và gán cho một trường.
      */
     public function createAdminForSchool(Request $request, int $schoolId)

@@ -26,8 +26,6 @@ export const useAuthStore = defineStore('auth', () => {
 
             const response = await api.post('/login', credentials)
 
-            console.log('Login response:', response.data)
-
             if (response.data.access_token) {
                 // Lưu token và user
                 token.value = response.data.access_token
