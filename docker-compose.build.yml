@@ -2,6 +2,11 @@ services:
   node:
     image: node:20-alpine
     working_dir: /var/www
+    env_file:
+      - .env
+    environment:
+      # đảm bảo Vite nhận đúng API base khi build
+      VITE_API_BASE_URL: ${VITE_API_BASE_URL}
     volumes:
       - ./:/var/www
     command: sh -c "npm ci || npm install; npm run build"
