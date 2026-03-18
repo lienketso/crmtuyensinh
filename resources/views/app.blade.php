@@ -15,7 +15,7 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script>
         // Pass base path to Vue app
-        window.APP_BASE_PATH = '{{ url("/") }}';
+        window.APP_BASE_PATH = '{{ rtrim(config('app.url'), '/') }}';
     </script>
 </head>
 <body>
